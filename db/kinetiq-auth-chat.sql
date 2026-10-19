@@ -110,3 +110,9 @@ exception
   when duplicate_object then null;
   when undefined_object then null;
 end $$;
+
+-- Explicit grants for projects where Data API privileges are not granted automatically.
+grant select, insert, update on public.profiles to authenticated;
+grant select, insert on public.chat_messages to authenticated;
+grant select, insert, update, delete on public.chat_roles to authenticated;
+grant select, insert, delete on public.chat_role_assignments to authenticated;
