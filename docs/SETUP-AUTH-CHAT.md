@@ -6,7 +6,7 @@ Kinetiq now includes GitHub/Google OAuth buttons, required display-name onboardi
 
 Use a Supabase project created for Kinetiq. Do not use a service-role key in Vercel environment variables.
 
-1. In Supabase, open **Authentication → Sign In / Providers** and enable **GitHub** and **Google**. Each provider requires its own OAuth client credentials.
+1. In Supabase, open **Authentication → Sign In / Providers** and enable **GitHub** and **Google**. Each provider requires its own OAuth client credentials. In the GitHub and Google developer consoles, use the callback URL shown on the matching Supabase provider settings page as the provider redirect URI.
 2. In **Authentication → URL Configuration**, set the Site URL to:
    `https://kinetiq-rzla.vercel.app`
 3. Add this redirect URL to the allowed redirect URLs:
