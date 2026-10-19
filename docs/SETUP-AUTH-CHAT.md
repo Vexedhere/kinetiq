@@ -18,12 +18,12 @@ The SQL creates profile, chat-message, and chat-role tables, enables row-level s
 
 ## 2. Configure Vercel
 
-In **Vercel → Kinetiq → Settings → Environment Variables**, add these variables for Production (and Preview if you use preview deployments):
+The current `main` branch already includes the project URL and the **publishable** browser key you supplied as safe client defaults, so you do not need to paste them into Vercel for the current project. If you prefer environment-based configuration, open **Vercel → Kinetiq → Settings → Environment Variables** and add these for Production (and Preview if needed):
 
 - `NEXT_PUBLIC_SUPABASE_URL`: the Project URL from Supabase Project Settings → API.
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: the project's publishable key. A legacy anon key can be used if your project only exposes that, but never put a service-role/secret key in a `NEXT_PUBLIC_` variable.
 
-Save the variables and redeploy the latest `main` commit.
+If you add or change environment variables, save them and redeploy the latest `main` commit. The app will use environment values when present and otherwise fall back to the public client defaults in `lib/supabase.ts`.
 
 ## 3. What is implemented
 
