@@ -20,6 +20,8 @@ type AuthContextValue = {
   supabase: ReturnType<typeof getSupabaseBrowserClient>;
 };
 
+const KINETIQ_CANONICAL_URL = "https://kinetiq-rzla.vercel.app";
+
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   displayName: "",
@@ -74,15 +76,26 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
   }, [supabase, syncUser]);
 
   async function signIn(provider: "github" | "google") {
-    if (!supabase) return;
+    if (!supabase) {
+      setError("Sign-in is not configured yet. Please try again later.");
+      return;
+    }
     setError("");
     setBusyProvider(provider);
-    const { error: signInError } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: window.location.origin },
-    });
-    if (signInError) {
-      setError(signInError.message);
+    try {
+      const { error: signInError } = await supabase.auth.signInWithOAuth({
+        provider,
+        // Always return to Kinetiq's canonical URL, never whichever domain embedded or opened it.
+        options: { redirectTo: KINETIQ_CANONICAL_URL },
+      });
+      if (signInError) {
+        setError(signInError.message.includes("provider")
+          ? `${provider === "github" ? "GitHub" : "Google"} sign-in isn't enabled yet. Please try the other option or contact the site owner.`
+          : signInError.message);
+        setBusyProvider(null);
+      }
+    } catch {
+      setError("Couldn't start sign-in. Check your connection and try again.");
       setBusyProvider(null);
     }
   }
@@ -154,8 +167,9 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
           <div className="auth-brand"><span><Waves size={25} /></span><strong>kinetiq</strong></div>
           <div className="auth-orbit"><div className="auth-orbit-core"><Waves size={38} /></div><i /><i /><i /></div>
           <div className="auth-kicker"><Sparkles size={14} /> YOUR PEOPLE, IN SYNC</div>
-          <h1>Find your<br /><em>frequency.</em></h1>
-          <p>A home for your communities, late-night conversations, and watch parties. Sign in to get started.</p>
+          <h1>Your world.<br /><em>Your people.</em></h1>
+          <p>One place for your communities, real-time conversations, and watch parties. Sign in securely to make Kinetiq yours.</p>
+          <div className="auth-login-benefits"><span><Check size={13} /> Your communities in one place</span><span><Check size={13} /> A display name you choose</span></div>
           <button className="oauth-button oauth-github" disabled={!!busyProvider} onClick={() => signIn("github")}>
             {busyProvider === "github" ? <LoaderCircle size={18} className="auth-spinner" /> : <Github size={18} />}
             Continue with GitHub
@@ -165,7 +179,8 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
             Continue with Google
           </button>
           {error && <p className="auth-error">{error}</p>}
-          <div className="auth-privacy"><LockKeyhole size={13} /> Your account. Your display name. Your space.</div>
+          <div className="auth-privacy"><LockKeyhole size={13} /> Secure sign-in handled by Google or GitHub</div>
+          <div className="auth-canonical-note">You’ll return to <strong>kinetiq-rzla.vercel.app</strong> after sign-in.</div>
           <div className="auth-foot">By continuing, you agree to keep Kinetiq welcoming and respectful.</div>
         </section>
       </main>
