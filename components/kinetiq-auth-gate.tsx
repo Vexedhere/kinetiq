@@ -133,15 +133,15 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
       <main className="auth-screen">
         <section className="auth-card auth-setup-card">
           <div className="auth-brand"><span><Waves size={25} /></span><strong>kinetiq</strong></div>
-          <div className="auth-kicker"><Sparkles size={14} /> ONE LAST CONNECTION</div>
-          <h1>Connect your<br /><em>community.</em></h1>
-          <p>Kinetiq is deployed, but sign-in needs your Supabase project keys before anyone can create an account.</p>
+          <div className="auth-kicker"><Sparkles size={14} /> FINISHING THE CONNECTION</div>
+          <h1>Your people,<br /><em>in sync.</em></h1>
+          <p>This deployed build hasn't picked up Kinetiq's Supabase configuration yet. The latest source includes the project connection, so publish the latest commit from the main branch to refresh this page.</p>
           <div className="auth-setup-steps">
-            <div><span>1</span><div><strong>Add the two environment variables in Vercel</strong><small>NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</small></div></div>
-            <div><span>2</span><div><strong>Enable Google and GitHub providers</strong><small>Supabase Dashboard → Authentication → Sign In / Providers</small></div></div>
-            <div><span>3</span><div><strong>Redeploy Kinetiq</strong><small>Then people can sign in and choose their display name.</small></div></div>
+            <div><span>1</span><div><strong>Open your Kinetiq project in Vercel</strong><small>Choose the project connected to Vexedhere/kinetiq.</small></div></div>
+            <div><span>2</span><div><strong>Redeploy the latest main commit</strong><small>Use the newest deployment source, not an older build.</small></div></div>
+            <div><span>3</span><div><strong>Check your Supabase sign-in providers</strong><small>Enable Google and GitHub under Authentication → Sign In / Providers.</small></div></div>
           </div>
-          <a className="auth-doc-link" href="https://supabase.com/dashboard" target="_blank" rel="noreferrer">Open Supabase dashboard <ArrowRight size={15} /></a>
+          <a className="auth-doc-link" href="https://vercel.com/dashboard" target="_blank" rel="noreferrer">Open Vercel dashboard <ArrowRight size={15} /></a>
         </section>
       </main>
     );
