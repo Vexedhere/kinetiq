@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { KinetiqAuthGate, useKinetiqAuth } from "@/components/kinetiq-auth-gate";
 import {
   Activity, ArrowDown, ArrowUpRight, Bell, Check, ChevronDown, ChevronLeft, ChevronRight,
-  CircleHelp, Clapperboard, Compass, Crown, Hash, Headphones, Home, ImagePlus, LockKeyhole,
+  CircleHelp, Clapperboard, Compass, Crown, Hash, Headphones, Home, ImagePlus, LockKeyhole, LogOut,
   MessageCircle, Mic, MicOff, MoreHorizontal, Plus, Search, Send, Settings, ShieldCheck,
   Sparkles, Smile, Users, Video, Volume2, Waves, Wifi, X, Zap
 } from "lucide-react";
@@ -104,7 +104,7 @@ function HomePageContent() {
     const message: ChatMessage = { id: Date.now(), name: displayName || "Kinetiq member", initials: userInitial, color: "lilac", time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), text, role: "YOU", author_id: authUser?.id };
     if (supabase && authUser) {
       const { error } = await supabase.from("chat_messages").insert({ channel_slug: activeChannel, author_id: authUser.id, body: text });
-      if (!error) return;
+      if (!error) { setMessages((prev) => [...prev, message]); return; }
       announce("Message could not sync yet. Run db/kinetiq-auth-chat.sql in your Supabase project.");
     }
     setMessages((prev) => [...prev, message]);
@@ -160,7 +160,7 @@ function HomePageContent() {
           <Avatar initials={userInitial} color="lilac" />
           <div className="user-meta"><div className="user-name">{displayName || "Kinetiq member"}</div><span>Signed in</span></div>
           <button className="icon-button" aria-label="Mute microphone" onClick={() => setMuted(!muted)}>{muted ? <MicOff size={17} /> : <Mic size={17} />}</button>
-          <button className="icon-button" aria-label="Settings" onClick={() => announce("Settings will be available after accounts are enabled.")}><Settings size={17} /></button>
+          <button className="icon-button" aria-label="Sign out" title="Sign out" onClick={async () => { if (supabase) await supabase.auth.signOut(); }}><LogOut size={17} /></button>
         </div>
       </aside>
 
