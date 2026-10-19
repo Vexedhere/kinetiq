@@ -42,7 +42,7 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
 
   const syncUser = useCallback((nextUser: User | null) => {
     setUser(nextUser);
-    const name = String(nextUser?.user_metadata?.display_name || nextUser?.user_metadata?.full_name || nextUser?.user_metadata?.name || "");
+    const name = String(nextUser?.user_metadata?.display_name || "");
     setDisplayName(name);
     setNameDraft(name);
   }, []);
