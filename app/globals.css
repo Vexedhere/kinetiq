@@ -66,3 +66,16 @@
 .role-purple{background:#b49cff;color:#b49cff}.role-mint{background:#78f0ce;color:#78f0ce}.role-gold{background:#f1c76d;color:#f1c76d}.role-blue{background:#75bfff;color:#75bfff}.role-pink{background:#f48fbc;color:#f48fbc}
 .roles-footnote{display:flex;align-items:flex-start;gap:8px;margin-top:17px;padding:11px;border:1px solid #a78bfa1b;border-radius:9px;color:#999db0;font-size:10px;line-height:1.6}.roles-footnote svg{flex-shrink:0;color:#c3afff}
 @media(max-width:560px){.auth-card{padding:25px 21px;border-radius:20px}.auth-screen{padding:15px}.auth-card h1{font-size:40px}}
+
+
+/* Refined Kinetiq sign-in */
+.auth-login-benefits{display:grid;gap:8px;margin:0 0 17px;padding:13px 14px;border:1px solid #ffffff0d;border-radius:12px;background:linear-gradient(110deg,#a78bfa0b,#78f0ce08)}
+.auth-login-benefits span{display:flex;align-items:center;gap:8px;color:#b7b8c9;font-size:11px}
+.auth-login-benefits svg{color:var(--mint);flex-shrink:0}
+.auth-card:has(.oauth-github) .auth-kicker{margin-top:26px}
+.auth-card:has(.oauth-github) .oauth-button{min-height:50px;font-size:12px;border-radius:12px}
+.auth-card:has(.oauth-github) .oauth-github{background:#f5f3ff;color:#17151f;box-shadow:0 8px 24px #a78bfa12}
+.auth-card:has(.oauth-github) .oauth-google{background:#171923;border-color:#ffffff20}
+.auth-card:has(.oauth-github) .oauth-button:focus-visible{outline:2px solid #bca8ff;outline-offset:3px}
+.auth-canonical-note{margin-top:12px;text-align:center;color:#777b91;font-size:10px;line-height:1.6}
+.auth-canonical-note strong{color:#bdb3e8;font-weight:600}
