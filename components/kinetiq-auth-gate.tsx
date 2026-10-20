@@ -32,6 +32,35 @@ export function useKinetiqAuth() {
   return useContext(AuthContext);
 }
 
+function AuthVisualPanel() {
+  return (
+    <aside className="auth-showcase" aria-label="Kinetiq community preview">
+      <div className="showcase-grid" aria-hidden="true" />
+      <div className="showcase-topline"><span className="showcase-logo"><Waves size={19} /></span><span>KINETIQ</span><span className="showcase-beta">BETA</span></div>
+      <div className="showcase-copy">
+        <span className="showcase-eyebrow"><i /> YOUR PEOPLE, IN SYNC</span>
+        <h2>More than a chat.<br /><em>A place to belong.</em></h2>
+        <p>Bring your community together with conversations, watch parties, and spaces that feel like yours.</p>
+      </div>
+      <div className="showcase-preview">
+        <div className="preview-window-top"><span><i /><i /><i /></span><span className="preview-room-label"><Waves size={12} /> kinetiq lounge</span><span className="preview-live"><i /> LIVE</span></div>
+        <div className="preview-room">
+          <div className="preview-room-art"><div className="preview-art-orb" /><div className="preview-art-horizon" /><span className="preview-art-label">WATCH TOGETHER</span><strong>the little<br /><em>moments.</em></strong><span className="preview-art-caption">A community screening · 1080p</span></div>
+          <div className="preview-chat">
+            <div className="preview-chat-heading"><span>ROOM CHAT</span><span>03 online</span></div>
+            <div className="preview-chat-line"><span className="preview-avatar avatar-lilac">m</span><div><strong>mira.exe</strong><p>this is such a vibe ✨</p></div></div>
+            <div className="preview-chat-line"><span className="preview-avatar avatar-mint">n</span><div><strong>noah.wav</strong><p>everyone synced?</p></div></div>
+            <div className="preview-chat-line"><span className="preview-avatar avatar-gold">c</span><div><strong>you</strong><p>right here. 🍿</p></div></div>
+            <div className="preview-chat-input"><span>Say something nice…</span><span>↗</span></div>
+          </div>
+        </div>
+        <div className="preview-footer"><span><i /> All together, wherever you are</span><span>01:24 <b>·</b> SYNCED</span></div>
+      </div>
+      <div className="showcase-bottom"><span><ShieldCheck size={14} /> Built for real communities</span><span>MAKE YOUR SPACE</span></div>
+    </aside>
+  );
+}
+
 export function KinetiqAuthGate({ children }: { children: ReactNode }) {
   const supabase = useMemo(() => getSupabaseBrowserClient(), []);
   const [user, setUser] = useState<User | null>(null);
