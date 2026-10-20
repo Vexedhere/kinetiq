@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import type { User } from "@supabase/supabase-js";
-import { ArrowRight, Check, Github, LoaderCircle, LockKeyhole, Sparkles, Waves } from "lucide-react";
+import { ArrowRight, Check, Github, LoaderCircle, LockKeyhole, ShieldCheck, Sparkles, Waves } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 type AuthContextValue = {
@@ -73,6 +73,7 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
 
   const syncUser = useCallback((nextUser: User | null) => {
     setUser(nextUser);
+    if (nextUser) setBusyProvider(null);
     const name = String(nextUser?.user_metadata?.display_name || "");
     setDisplayName(name);
     setNameDraft(name);
@@ -94,6 +95,7 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!active) return;
+      if (session?.user) setError("");
       syncUser(session?.user ?? null);
       setLoading(false);
     });
@@ -173,6 +175,7 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
   if (!supabase) {
     return (
       <main className="auth-screen">
+        <div className="auth-layout"><AuthVisualPanel />
         <section className="auth-card auth-setup-card">
           <div className="auth-brand"><span><Waves size={25} /></span><strong>kinetiq</strong></div>
           <div className="auth-kicker"><Sparkles size={14} /> FINISHING THE CONNECTION</div>
@@ -184,7 +187,7 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
             <div><span>3</span><div><strong>Check your Supabase sign-in providers</strong><small>Enable Google and GitHub under Authentication → Sign In / Providers.</small></div></div>
           </div>
           <a className="auth-doc-link" href="https://vercel.com/dashboard" target="_blank" rel="noreferrer">Open Vercel dashboard <ArrowRight size={15} /></a>
-        </section>
+        </section></div>
       </main>
     );
   }
@@ -192,6 +195,7 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
   if (!user) {
     return (
       <main className="auth-screen">
+        <div className="auth-layout"><AuthVisualPanel />
         <section className="auth-card">
           <div className="auth-brand"><span><Waves size={25} /></span><strong>kinetiq</strong></div>
           <div className="auth-orbit"><div className="auth-orbit-core"><Waves size={38} /></div><i /><i /><i /></div>
@@ -219,6 +223,7 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
   if (!displayName.trim()) {
     return (
       <main className="auth-screen">
+        <div className="auth-layout"><AuthVisualPanel />
         <section className="auth-card name-card">
           <div className="auth-brand"><span><Waves size={25} /></span><strong>kinetiq</strong></div>
           <div className="auth-kicker"><Check size={14} /> ACCOUNT CONNECTED</div>
