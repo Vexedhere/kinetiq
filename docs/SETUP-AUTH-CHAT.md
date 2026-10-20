@@ -1,6 +1,6 @@
 # Kinetiq auth and chat setup
 
-Kinetiq now includes GitHub/Google OAuth buttons, required display-name onboarding, Supabase-backed chat messages with realtime updates, and a role-creation panel.
+Kinetiq now includes a redesigned responsive sign-in experience, GitHub/Google OAuth, required display-name onboarding, Supabase-backed chat messages with realtime updates, and a role-creation panel. A middleware rule redirects the known SparkAgent hostname to Kinetiq’s canonical Vercel URL.
 
 ## 1. Configure Supabase
 
@@ -12,6 +12,7 @@ Use a Supabase project created for Kinetiq. Do not use a service-role key in Ver
 3. Add this redirect URL to the allowed redirect URLs:
    `https://kinetiq-rzla.vercel.app/**`
    For local development, also allow `http://localhost:3000/**`.
+5. Keep Kinetiq’s Supabase project separate from SparkAgent if you want independent users, sessions, and data. OAuth redirects are restricted in code to Kinetiq’s canonical URL. In Vercel, remove `try.sparkagent.in.net` from Kinetiq’s **Settings → Domains** if it is assigned there; the app middleware also redirects requests arriving on that known SparkAgent hostname.
 4. Open **SQL Editor**, paste the complete contents of `db/kinetiq-auth-chat.sql`, and run it.
 
 The SQL creates profile, chat-message, and chat-role tables, enables row-level security, adds policies, grants authenticated access, and enables Realtime for messages.
