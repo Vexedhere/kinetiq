@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { KinetiqAuthGate, useKinetiqAuth } from "@/components/kinetiq-auth-gate";
 import {
-  Activity, ArrowDown, ArrowUpRight, Bell, Check, ChevronDown, ChevronLeft, ChevronRight,
+  Activity, ArrowDown, ArrowUpRight, Bell, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight,
   CircleHelp, Clapperboard, Compass, Crown, Hash, Headphones, Home, ImagePlus, LockKeyhole, LogOut,
   MessageCircle, Mic, MicOff, MoreHorizontal, Plus, Search, Send, Settings, ShieldCheck,
   Sparkles, Smile, Users, Video, Volume2, Waves, Wifi, X, Zap
@@ -46,7 +46,7 @@ function OwnerBadge({ type }: { type: string }) {
 function HomePageContent() {
   const { user: authUser, displayName, supabase } = useKinetiqAuth();
   const userInitial = (displayName.trim()[0] || "K").toUpperCase();
-  const [activeChannel, setActiveChannel] = useState("theater");
+  const [activeChannel, setActiveChannel] = useState("home");
   const [activeGuild, setActiveGuild] = useState(0);
   const [messages, setMessages] = useState(initialMessages);
   const [draft, setDraft] = useState("");
@@ -57,6 +57,10 @@ function HomePageContent() {
   const [showExplore, setShowExplore] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showRoles, setShowRoles] = useState(false);
+  const [showCreateChannel, setShowCreateChannel] = useState(false);
+  const [channelDraft, setChannelDraft] = useState("");
+  const [customChannels, setCustomChannels] = useState<string[]>([]);
+  const [homeTab, setHomeTab] = useState<"overview" | "activity">("overview");
   const [roleNameDraft, setRoleNameDraft] = useState("");
   const [roleColorDraft, setRoleColorDraft] = useState("purple");
   const [roles, setRoles] = useState<{id?: string; name: string; color: string}[]>([
@@ -65,6 +69,36 @@ function HomePageContent() {
   const [notice, setNotice] = useState("");
   const [duration] = useState("12:48");
   const filteredMembers = useMemo(() => members.filter((m) => m.name.toLowerCase().includes(search.toLowerCase())), [search]);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("kinetiq-custom-channels");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) setCustomChannels(parsed.filter((v) => typeof v === "string").slice(0, 20));
+      }
+    } catch { /* Local channel list is optional. */ }
+  }, []);
+
+  useEffect(() => {
+    try { window.localStorage.setItem("kinetiq-custom-channels", JSON.stringify(customChannels)); }
+    catch { /* Keep the current session usable when storage is unavailable. */ }
+  }, [customChannels]);
+
+  function createChannel() {
+    const slug = channelDraft.trim().toLowerCase().replace(/[^a-z0-9- ]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+    if (slug.length < 2 || slug.length > 32) { announce("Channel names must be 2–32 characters."); return; }
+    if (["general", "announcements", "theater", "lounge", "home"].includes(slug) || customChannels.includes(slug)) {
+      announce("That channel already exists."); return;
+    }
+    if (customChannels.length >= 20) { announce("You can create up to 20 local channels."); return; }
+    setCustomChannels((current) => [...current, slug]);
+    setChannelDraft("");
+    setShowCreateChannel(false);
+    setActiveChannel(slug);
+    announce("#" + slug + " created on this device.");
+  }
+
 
   useEffect(() => {
     if (!supabase || !authUser) return;
@@ -133,7 +167,7 @@ function HomePageContent() {
   return (
     <main className="app-shell">
       <aside className="guild-rail">
-        <button className="brand-mark" aria-label="Kinetiq home" onClick={() => { setActiveChannel("theater"); setShowExplore(false); }}><Waves size={25} strokeWidth={2.5} /></button>
+        <button className="brand-mark" aria-label="Kinetiq home" onClick={() => { setActiveChannel("home"); setShowExplore(false); }}><Waves size={25} strokeWidth={2.5} /></button>
         <div className="rail-divider" />
         {guilds.map((guild, index) => <button key={guild.name} title={guild.name} className={`guild-icon ${guild.color} ${activeGuild === index ? "guild-active" : ""}`} onClick={() => { setActiveGuild(index); announce(`Switched to ${guild.name}`); }}><span>{guild.letters}</span>{activeGuild === index && <i />}</button>)}
         <button className="guild-add" title="Create a community" onClick={() => announce("Community creation will be available after authentication is connected.")}><Plus size={20} /></button>
@@ -147,12 +181,13 @@ function HomePageContent() {
           <button className={`nav-link ${activeChannel === "home" ? "nav-selected" : ""}`} onClick={() => setActiveChannel("home")}><Home size={17} /> Overview</button>
           <button className="nav-link" onClick={() => setShowExplore(true)}><Compass size={17} /> Explore <span className="nav-new">NEW</span></button>
           <button className="nav-link" onClick={() => setShowRoles(true)}><ShieldCheck size={17} /> Roles <span className="nav-new">NEW</span></button>
-          <div className="channel-label"><span>YOUR CHANNELS</span><button title="Add channel" onClick={() => announce("Channel creation will be available when the backend is connected.")}><Plus size={15} /></button></div>
+          <div className="channel-label"><span>YOUR CHANNELS</span><button title="Create channel" onClick={() => setShowCreateChannel(true)}><Plus size={15} /></button></div>
           <button className={`channel-link ${activeChannel === "general" ? "channel-selected" : ""}`} onClick={() => setActiveChannel("general")}><Hash size={16} /> general</button>
           <button className={`channel-link ${activeChannel === "announcements" ? "channel-selected" : ""}`} onClick={() => setActiveChannel("announcements")}><Hash size={16} /> announcements <span className="unread-dot" /></button>
           <button className={`channel-link ${activeChannel === "theater" ? "channel-selected" : ""}`} onClick={() => setActiveChannel("theater")}><Clapperboard size={16} /> movie-theater <span className="live-mini">LIVE</span></button>
           <div className="channel-label voice-label"><span>VOICE LOUNGES</span><button title="Add voice lounge" onClick={() => announce("Voice lounge creation is coming with the WebRTC backend.")}><Plus size={15} /></button></div>
           <button className={`channel-link ${activeChannel === "lounge" ? "channel-selected" : ""}`} onClick={() => setActiveChannel("lounge")}><Volume2 size={16} /> The chill zone <span className="voice-count">3</span></button>
+          {customChannels.map((channel) => <button key={channel} className={"channel-link " + (activeChannel === channel ? "channel-selected" : "")} onClick={() => setActiveChannel(channel)}><Hash size={16}/>{channel}</button>)}
           {joinedVoice && <div className="voice-connected"><span className="connection-pulse" /> Connected · The chill zone</div>}
           <div className="sidebar-event"><div className="event-icon"><Clapperboard size={18} /></div><div><strong>Community screening</strong><span>Happening now</span></div><span className="event-dot" /></div>
         </div>
@@ -203,7 +238,42 @@ function HomePageContent() {
             </div>
             <div className="chat-composer"><div className="composer-wrap"><button className="composer-plus" onClick={() => setShowUpload(true)} aria-label="Attach media"><Plus size={19} /></button><input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") sendMessage(); }} placeholder={`Message #movie-theater`} aria-label="Write a message" /><button className="composer-emoji" onClick={() => setDraft((d) => d + " ✨")} aria-label="Add emoji"><Smile size={18} /></button><button className="send-button" onClick={sendMessage} aria-label="Send message"><Send size={16} /></button></div><div className="composer-foot"><span><LockKeyhole size={11} /> Community chat</span><span>Enter to send</span></div></div>
           </aside>
-        </div> : activeChannel === "lounge" ? <div className="content-view"><div className="eyebrow"><span className="eyebrow-dot" /> VOICE LOUNGE</div><h1>The chill zone</h1><p className="view-subtitle">Join a live voice room and stay connected with your community.</p><div className="voice-room-card"><div className="voice-orb"><Waves size={36} /></div><h2>{joinedVoice ? "You're in the lounge" : "Voice, without the friction."}</h2><p>{joinedVoice ? "Voice connection is simulated in this UI preview." : "Join the room when you're ready."}</p><div className="voice-attendees">{members.slice(0,3).map(m => <div key={m.name}><Avatar initials={m.initials} color={m.color}/><span>{m.name}</span></div>)}</div><button className="primary-button" onClick={() => { setJoinedVoice(!joinedVoice); announce(joinedVoice ? "Left voice lounge." : "Demo: joined voice lounge. WebRTC is not connected yet."); }}>{joinedVoice ? <><X size={17}/> Leave lounge</> : <><Headphones size={17}/> Join voice lounge</>}</button></div></div> : activeChannel === "home" ? <div className="content-view"><div className="eyebrow"><span className="eyebrow-dot" /> YOUR COMMUNITY</div><h1>Your people, <span>in sync.</span></h1><p className="view-subtitle">Your communities, channels, and shared media in one workspace.</p><div className="overview-grid"><div className="overview-card"><Users/><strong>128</strong><span>Community members</span></div><div className="overview-card"><Activity/><strong>18</strong><span>Online right now</span></div><div className="overview-card"><Video/><strong>04</strong><span>Media shared</span></div></div><div className="section-heading"><h2>Jump back in</h2><span>YOUR SPACES</span></div><button className="jump-card" onClick={() => setActiveChannel("theater")}><div className="jump-icon"><Clapperboard/></div><div><strong>Friday night watch party</strong><span># movie-theater · 5 watching</span></div><ArrowUpRight/></button></div> : <div className="content-view"><div className="eyebrow"><span className="eyebrow-dot" /> TEXT CHANNEL</div><h1>#{activeChannel}</h1><p className="view-subtitle">A place for your community to connect.</p><div className="empty-channel"><div><MessageCircle size={30}/></div><h2>Start the conversation.</h2><p>Use this channel to share updates, ask questions, and keep your community connected.</p><div className="simple-composer"><input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if(e.key === "Enter") sendMessage(); }} placeholder={`Message #${activeChannel}`} /><button className="send-button" onClick={sendMessage}><Send size={16}/></button></div>{messages.slice(-3).map(m => <div className="simple-message" key={m.id}><Avatar initials={m.initials} color={m.color} small/><div><strong>{m.name}</strong><span>{m.text}</span></div></div>)}</div></div>}
+        </div> : activeChannel === "lounge" ? <div className="content-view"><div className="eyebrow"><span className="eyebrow-dot" /> VOICE LOUNGE</div><h1>The chill zone</h1><p className="view-subtitle">Join a live voice room and stay connected with your community.</p><div className="voice-room-card"><div className="voice-orb"><Waves size={36} /></div><h2>{joinedVoice ? "You're in the lounge" : "Voice, without the friction."}</h2><p>{joinedVoice ? "Voice connection is simulated in this UI preview." : "Join the room when you're ready."}</p><div className="voice-attendees">{members.slice(0,3).map(m => <div key={m.name}><Avatar initials={m.initials} color={m.color}/><span>{m.name}</span></div>)}</div><button className="primary-button" onClick={() => { setJoinedVoice(!joinedVoice); announce(joinedVoice ? "Left voice lounge." : "Demo: joined voice lounge. WebRTC is not connected yet."); }}>{joinedVoice ? <><X size={17}/> Leave lounge</> : <><Headphones size={17}/> Join voice lounge</>}</button></div></div> : activeChannel === "home" ? <div className="content-view home-dashboard">
+          <div className="home-welcome">
+            <div><div className="eyebrow"><span className="eyebrow-dot" /> YOUR WORKSPACE</div><h1>Good to see you, <span>{displayName || "there"}.</span></h1><p className="view-subtitle">Everything happening in your community, in one place.</p></div>
+            <button className="home-create-button" onClick={() => setShowCreateChannel(true)}><Plus size={16}/> Create channel</button>
+          </div>
+          <div className="home-hero">
+            <div className="home-hero-copy"><span className="home-hero-kicker"><Sparkles size={13}/> YOUR COMMUNITY HUB</span><h2>Make room for<br/><em>good conversations.</em></h2><p>Start a conversation, bring people into a watch party, or shape your space around the things you care about.</p><div className="home-hero-actions"><button className="primary-button" onClick={() => setActiveChannel("general")}><MessageCircle size={16}/> Open general</button><button className="secondary-button" onClick={() => setShowExplore(true)}><Compass size={16}/> Explore spaces</button></div></div>
+            <div className="home-hero-art" aria-hidden="true"><div className="home-orbit home-orbit-one"/><div className="home-orbit home-orbit-two"/><div className="home-orb-main"><Waves size={38}/></div><div className="home-float-card home-float-chat"><MessageCircle size={15}/><span><strong>Conversations</strong><small>Keep your people close</small></span></div><div className="home-float-card home-float-watch"><Video size={15}/><span><strong>Watch together</strong><small>Pick up where you left off</small></span></div></div>
+          </div>
+          <div className="home-section-head"><div><h2>Quick actions</h2><p>Get straight to what you want to do.</p></div><span className="home-section-tag">SHORTCUTS</span></div>
+          <div className="home-action-grid">
+            <button className="home-action-card" onClick={() => setShowCreateChannel(true)}><span className="home-action-icon action-blue"><Hash size={19}/></span><strong>Create a channel</strong><small>Start a focused conversation</small><ArrowUpRight size={15}/></button>
+            <button className="home-action-card" onClick={() => setShowUpload(true)}><span className="home-action-icon action-mint"><Video size={19}/></span><strong>Share media</strong><small>Preview a video for your room</small><ArrowUpRight size={15}/></button>
+            <button className="home-action-card" onClick={() => setActiveChannel("theater")}><span className="home-action-icon action-gold"><Clapperboard size={19}/></span><strong>Open theater</strong><small>Continue the watch party</small><ArrowUpRight size={15}/></button>
+            <button className="home-action-card" onClick={() => setShowRoles(true)}><span className="home-action-icon action-violet"><ShieldCheck size={19}/></span><strong>Manage roles</strong><small>Organize your community</small><ArrowUpRight size={15}/></button>
+          </div>
+          <div className="home-lower-grid">
+            <section className="home-panel">
+              <div className="home-panel-heading"><div><h2>Pick up where you left off</h2><p>Your community spaces</p></div><button onClick={() => setHomeTab(homeTab === "overview" ? "activity" : "overview")}>{homeTab === "overview" ? "Recent activity" : "Your spaces"} <ArrowUpRight size={13}/></button></div>
+              {homeTab === "overview" ? <div className="home-space-list">
+                <button className="home-space-row" onClick={() => setActiveChannel("theater")}><span className="home-space-symbol space-theater"><Clapperboard size={18}/></span><span className="home-space-copy"><strong>Friday night watch party</strong><small># movie-theater · Shared viewing room</small></span><span className="home-space-status"><i/> Ready</span><ChevronRight size={16}/></button>
+                <button className="home-space-row" onClick={() => setActiveChannel("general")}><span className="home-space-symbol space-general"><Hash size={18}/></span><span className="home-space-copy"><strong># general</strong><small>Everyday conversation and updates</small></span><span className="home-space-status">Text</span><ChevronRight size={16}/></button>
+                <button className="home-space-row" onClick={() => setActiveChannel("lounge")}><span className="home-space-symbol space-voice"><Headphones size={18}/></span><span className="home-space-copy"><strong>The chill zone</strong><small>Voice lounge · connection preview</small></span><span className="home-space-status">Voice</span><ChevronRight size={16}/></button>
+                {customChannels.slice(0,3).map((channel) => <button className="home-space-row" key={channel} onClick={() => setActiveChannel(channel)}><span className="home-space-symbol space-general"><Hash size={18}/></span><span className="home-space-copy"><strong>#{channel}</strong><small>Your custom channel</small></span><span className="home-space-status">New</span><ChevronRight size={16}/></button>)}
+              </div> : <div className="home-activity-list">
+                <div className="home-activity-item"><span className="activity-mark activity-mark-blue"><MessageCircle size={15}/></span><div><strong>Chat is ready for you</strong><p>Open a channel to send a message to your community.</p><small>CHAT · AVAILABLE</small></div></div>
+                <div className="home-activity-item"><span className="activity-mark activity-mark-mint"><Video size={15}/></span><div><strong>Watch party space</strong><p>Open the theater to see the current viewing-room interface.</p><small>MEDIA · PREVIEW</small></div></div>
+                <div className="home-activity-item"><span className="activity-mark activity-mark-gold"><ShieldCheck size={15}/></span><div><strong>Community roles</strong><p>Set up labels to organize the people in your space.</p><small>SETTINGS · AVAILABLE</small></div></div>
+              </div>}
+            </section>
+            <aside className="home-side-column">
+              <div className="home-panel home-progress-panel"><div className="home-panel-heading"><div><h2>Community milestones</h2><p>Grow at your own pace</p></div><Activity size={17}/></div><div className="milestone-next"><span className="milestone-badge"><Check size={15}/></span><div><strong>Stone milestone</strong><small>Progress preview · 128 of 500</small></div></div><div className="home-progress-track"><i/></div><div className="milestone-foot"><span>Next: Iron</span><span>25.6% preview</span></div><p className="home-disclaimer">Counts are illustrative until connected to real community membership data.</p></div>
+              <div className="home-panel home-event-panel"><div className="home-event-icon"><CalendarDays size={18}/></div><div><span className="home-event-label">FEATURED SPACE</span><h3>Friday night watch party</h3><p>Return to the theater and continue the shared viewing experience.</p><button onClick={() => setActiveChannel("theater")}>Open theater <ArrowUpRight size={14}/></button></div></div>
+            </aside>
+          </div>
+        </div> : <div className="content-view"><div className="eyebrow"><span className="eyebrow-dot" /> TEXT CHANNEL</div><h1>#{activeChannel}</h1><p className="view-subtitle">A place for your community to connect.</p><div className="empty-channel"><div><MessageCircle size={30}/></div><h2>Start the conversation.</h2><p>Use this channel to share updates, ask questions, and keep your community connected.</p><div className="simple-composer"><input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if(e.key === "Enter") sendMessage(); }} placeholder={`Message #${activeChannel}`} /><button className="send-button" onClick={sendMessage}><Send size={16}/></button></div>{messages.slice(-3).map(m => <div className="simple-message" key={m.id}><Avatar initials={m.initials} color={m.color} small/><div><strong>{m.name}</strong><span>{m.text}</span></div></div>)}</div></div>}
       </section>
 
       <aside className="members-sidebar">
@@ -218,6 +288,8 @@ function HomePageContent() {
       </aside>
 
       {notice && <div className="toast"><Check size={16}/>{notice}<button onClick={() => setNotice("")} aria-label="Dismiss"><X size={14}/></button></div>}
+
+      {showCreateChannel && <div className="modal-backdrop" onClick={() => setShowCreateChannel(false)}><div className="modal-card create-channel-modal" onClick={(e) => e.stopPropagation()}><button className="modal-close" onClick={() => setShowCreateChannel(false)}><X size={18}/></button><div className="modal-icon"><Hash size={24}/></div><div className="eyebrow">WORKSPACE SETUP</div><h2>Create a channel</h2><p>Give a conversation its own space. Custom channels are saved in this browser on this device.</p><form className="role-create-form" onSubmit={(e) => { e.preventDefault(); createChannel(); }}><label htmlFor="channel-name">CHANNEL NAME</label><input id="channel-name" value={channelDraft} onChange={(e) => setChannelDraft(e.target.value)} placeholder="e.g. project-updates" minLength={2} maxLength={32} required/><small className="field-hint">Use letters, numbers, spaces or hyphens.</small><button className="primary-button modal-primary" type="submit"><Plus size={16}/> Create channel</button></form><div className="roles-footnote"><ShieldCheck size={14}/> This creates a local channel shortcut. Shared channel management requires a server-side channel table.</div></div></div>}
       {showRoles && <div className="modal-backdrop" onClick={() => setShowRoles(false)}><div className="modal-card roles-modal" onClick={(e) => e.stopPropagation()}><button className="modal-close" onClick={() => setShowRoles(false)}><X size={18}/></button><div className="modal-icon"><ShieldCheck size={24}/></div><div className="eyebrow">COMMUNITY SETTINGS</div><h2>Manage roles</h2><p>Create labels for your community like Admin, Moderator, Creator, or Member. Roles are saved to your Kinetiq account when Supabase is connected.</p><form className="role-create-form" onSubmit={(e) => { e.preventDefault(); void createRole(); }}><label htmlFor="role-name">NEW ROLE NAME</label><input id="role-name" value={roleNameDraft} onChange={(e) => setRoleNameDraft(e.target.value)} placeholder="e.g. EVENT MANAGER" maxLength={32} required/><label htmlFor="role-color">ROLE COLOR</label><select id="role-color" value={roleColorDraft} onChange={(e) => setRoleColorDraft(e.target.value)}><option value="purple">Purple</option><option value="mint">Mint</option><option value="gold">Gold</option><option value="blue">Blue</option><option value="pink">Pink</option></select><button className="primary-button modal-primary" type="submit"><Plus size={16}/> Create role</button></form><div className="roles-list-heading"><strong>YOUR ROLES</strong><span>{roles.length} roles</span></div><div className="roles-list">{roles.map((role) => <div className="role-list-row" key={role.id || role.name}><span className={"role-color-dot role-" + role.color} /><strong>{role.name}</strong><span>{role.id ? "Saved" : "Preview"}</span></div>)}</div><div className="roles-footnote"><ShieldCheck size={14}/> Role creation is available now; role assignment and community-wide permissions are next.</div></div></div>}
       {showExplore && <div className="modal-backdrop" onClick={() => setShowExplore(false)}><div className="modal-card" onClick={(e) => e.stopPropagation()}><button className="modal-close" onClick={() => setShowExplore(false)}><X size={18}/></button><div className="modal-icon"><Compass size={24}/></div><div className="eyebrow">FIND YOUR PEOPLE</div><h2>Explore Kinetiq</h2><p>Discover communities built around the things you love. Public discovery will light up once accounts and the community directory are connected.</p><div className="explore-preview"><div className="explore-art explore-one">✦</div><div><strong>Creator spaces</strong><span>Make, share, watch together.</span></div><ArrowUpRight size={17}/></div><div className="explore-preview"><div className="explore-art explore-two">◈</div><div><strong>Late-night lounges</strong><span>Find a room and stay awhile.</span></div><ArrowUpRight size={17}/></div><button className="primary-button modal-primary" onClick={() => {setShowExplore(false); announce("Community discovery is on the roadmap.");}}>Sounds good <ArrowDown size={15}/></button></div></div>}
       {showUpload && <div className="modal-backdrop" onClick={() => setShowUpload(false)}><div className="modal-card upload-modal" onClick={(e) => e.stopPropagation()}><button className="modal-close" onClick={() => setShowUpload(false)}><X size={18}/></button><div className="modal-icon"><ImagePlus size={24}/></div><div className="eyebrow">SHARE WITH YOUR PEOPLE</div><h2>Bring your own video</h2><p>Kinetiq is built for native MP4 and WebM uploads. This demo needs storage configured before it can accept real media.</p><div className="upload-drop"><Video size={25}/><strong>Drop a video here</strong><span>MP4 or WebM · Direct upload to your community storage</span><span className="upload-limit">Storage integration not connected</span></div><button className="primary-button modal-primary" onClick={() => setShowUpload(false)}>Got it <Check size={16}/></button></div></div>}
