@@ -38,14 +38,14 @@ function AuthVisualPanel() {
       <div className="showcase-grid" aria-hidden="true" />
       <div className="showcase-topline"><span className="showcase-logo"><Waves size={19} /></span><span>KINETIQ</span><span className="showcase-beta">BETA</span></div>
       <div className="showcase-copy">
-        <span className="showcase-eyebrow"><i /> YOUR PEOPLE, IN SYNC</span>
-        <h2>More than a chat.<br /><em>A place to belong.</em></h2>
-        <p>Bring your community together with conversations, watch parties, and spaces that feel like yours.</p>
+        <span className="showcase-eyebrow"><i /> COMMUNITY, WITHOUT THE NOISE</span>
+        <h2>A focused space.<br /><em>Built around people.</em></h2>
+        <p>Bring conversations, shared media, and your community into one clear workspace.</p>
       </div>
       <div className="showcase-preview">
         <div className="preview-window-top"><span><i /><i /><i /></span><span className="preview-room-label"><Waves size={12} /> kinetiq lounge</span><span className="preview-live"><i /> LIVE</span></div>
         <div className="preview-room">
-          <div className="preview-room-art"><div className="preview-art-orb" /><div className="preview-art-horizon" /><span className="preview-art-label">WATCH TOGETHER</span><strong>the little<br /><em>moments.</em></strong><span className="preview-art-caption">A community screening · 1080p</span></div>
+          <div className="preview-room-art"><div className="preview-art-orb" /><div className="preview-art-horizon" /><span className="preview-art-label">WATCH TOGETHER</span><strong>together,<br /><em>in focus.</em></strong><span className="preview-art-caption">Community screening · HD</span></div>
           <div className="preview-chat">
             <div className="preview-chat-heading"><span>ROOM CHAT</span><span>03 online</span></div>
             <div className="preview-chat-line"><span className="preview-avatar avatar-lilac">m</span><div><strong>mira.exe</strong><p>this is such a vibe ✨</p></div></div>
@@ -54,7 +54,7 @@ function AuthVisualPanel() {
             <div className="preview-chat-input"><span>Say something nice…</span><span>↗</span></div>
           </div>
         </div>
-        <div className="preview-footer"><span><i /> All together, wherever you are</span><span>01:24 <b>·</b> SYNCED</span></div>
+        <div className="preview-footer"><span><i /> Shared spaces. One community.</span><span>01:24 <b>·</b> SYNCED</span></div>
       </div>
       <div className="showcase-bottom"><span><ShieldCheck size={14} /> Built for real communities</span><span>MAKE YOUR SPACE</span></div>
     </aside>
@@ -199,10 +199,10 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
         <section className="auth-card">
           <div className="auth-brand"><span><Waves size={25} /></span><strong>kinetiq</strong></div>
           <div className="auth-orbit"><div className="auth-orbit-core"><Waves size={38} /></div><i /><i /><i /></div>
-          <div className="auth-kicker"><Sparkles size={14} /> YOUR PEOPLE, IN SYNC</div>
-          <h1>Your world.<br /><em>Your people.</em></h1>
-          <p>One place for your communities, real-time conversations, and watch parties. Sign in securely to make Kinetiq yours.</p>
-          <div className="auth-login-benefits"><span><Check size={13} /> Your communities in one place</span><span><Check size={13} /> A display name you choose</span></div>
+          <div className="auth-kicker"><Sparkles size={14} /> COMMUNITY, WITHOUT THE NOISE</div>
+          <h1>Your community.<br /><em>In one place.</em></h1>
+          <p>Access your communities, conversations, and shared viewing spaces with one secure account.</p>
+          <div className="auth-login-benefits"><span><Check size={13} /> Your spaces, together</span><span><Check size={13} /> A profile you control</span></div>
           <button className="oauth-button oauth-github" disabled={!!busyProvider} onClick={() => signIn("github")}>
             {busyProvider === "github" ? <LoaderCircle size={18} className="auth-spinner" /> : <Github size={18} />}
             Continue with GitHub
@@ -212,9 +212,9 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
             Continue with Google
           </button>
           {error && <p className="auth-error">{error}</p>}
-          <div className="auth-privacy"><LockKeyhole size={13} /> Secure sign-in handled by Google or GitHub</div>
+          <div className="auth-privacy"><LockKeyhole size={13} /> Authentication handled securely by your identity provider</div>
           <div className="auth-canonical-note">You’ll return to <strong>kinetiq-rzla.vercel.app</strong> after sign-in.</div>
-          <div className="auth-foot">By continuing, you agree to keep Kinetiq welcoming and respectful.</div>
+          <div className="auth-foot">By continuing, you agree to use Kinetiq responsibly and respectfully.</div>
         </section></div>
       </main>
     );
@@ -227,8 +227,8 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
         <section className="auth-card name-card">
           <div className="auth-brand"><span><Waves size={25} /></span><strong>kinetiq</strong></div>
           <div className="auth-kicker"><Check size={14} /> ACCOUNT CONNECTED</div>
-          <h1>What should<br />we <em>call you?</em></h1>
-          <p>Choose the name people will see in chat and around your communities. You can change it later.</p>
+          <h1>Set up your<br /><em>profile.</em></h1>
+          <p>Choose the display name other members will see. You can update it later.</p>
           <form onSubmit={saveDisplayName} className="display-name-form">
             <label htmlFor="display-name">DISPLAY NAME</label>
             <input id="display-name" value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} placeholder="e.g. Chethan" minLength={2} maxLength={32} autoFocus required />
