@@ -215,7 +215,7 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
           <div className="auth-privacy"><LockKeyhole size={13} /> Secure sign-in handled by Google or GitHub</div>
           <div className="auth-canonical-note">You’ll return to <strong>kinetiq-rzla.vercel.app</strong> after sign-in.</div>
           <div className="auth-foot">By continuing, you agree to keep Kinetiq welcoming and respectful.</div>
-        </section>
+        </section></div>
       </main>
     );
   }
@@ -236,7 +236,7 @@ export function KinetiqAuthGate({ children }: { children: ReactNode }) {
             {error && <p className="auth-error">{error}</p>}
             <button className="oauth-button oauth-submit" type="submit" disabled={savingName}>{savingName ? <LoaderCircle size={18} className="auth-spinner" /> : <>Enter Kinetiq <ArrowRight size={17} /></>}</button>
           </form>
-        </section>
+        </section></div>
       </main>
     );
   }
