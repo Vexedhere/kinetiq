@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const KINETIQ_CANONICAL_ORIGIN = "https://kinetiq-rzla.vercel.app";
+const KINETIQ_CANONICAL_HOST = "kinetiq-rzla.vercel.app";
 const OTHER_PROJECT_HOSTS = new Set(["try.sparkagent.in.net"]);
 
 /**
- * Keep Kinetiq isolated from aliases belonging to other projects.
- * Preserve the requested path and query while moving visitors to Kinetiq's own origin.
+ * The SparkAgent hostname must never be treated as Kinetiq's home.
+ * Use a temporary, non-cacheable redirect so an old permanent redirect cannot
+ * be reinforced by this middleware. Canonical-host routing is managed in Vercel.
  */
 export function middleware(request: NextRequest) {
   const host = request.nextUrl.hostname.toLowerCase();
@@ -15,10 +17,16 @@ export function middleware(request: NextRequest) {
       request.nextUrl.pathname + request.nextUrl.search,
       KINETIQ_CANONICAL_ORIGIN,
     );
-    return NextResponse.redirect(destination, 308);
+    const response = NextResponse.redirect(destination, 307);
+    response.headers.set("Cache-Control", "no-store, max-age=0");
+    response.headers.set("X-Kinetiq-Canonical-Host", KINETIQ_CANONICAL_HOST);
+    return response;
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("X-Kinetiq-Canonical-Host", KINETIQ_CANONICAL_HOST);
+  response.headers.set("Cache-Control", "no-store");
+  return response;
 }
 
 export const config = {
